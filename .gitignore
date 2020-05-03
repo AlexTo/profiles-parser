@@ -76,6 +76,7 @@ buildNumber.properties
 
 data
 output
+errors
 
 *.iml
 

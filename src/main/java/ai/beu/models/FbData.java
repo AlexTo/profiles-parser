@@ -1,6 +1,7 @@
 package ai.beu.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -24,7 +25,9 @@ public class FbData {
     private String shortName;
     private String website;
     private NodeSet groups;
-    private NodeSet adminedGroups;
+
+    @JsonProperty("admined_groups")
+    private NodeSet adminGroups;
     private Place hometown;
     private NodeSet albums;
     private NodeSet businesses;

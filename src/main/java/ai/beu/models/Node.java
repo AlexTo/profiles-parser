@@ -10,4 +10,5 @@ public class Node {
     private String id;
     private Title title;
     private Title message;
+    private Image image;
 }
