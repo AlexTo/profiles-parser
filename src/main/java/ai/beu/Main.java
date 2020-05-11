@@ -18,19 +18,21 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class Main {
 
-    private static int maxDocCount = Integer.MAX_VALUE;
-    private static boolean continueOnErrors = true;
-    private static ObjectMapper objectMapper = new ObjectMapper();
-    private static ValueFactory vf = SimpleValueFactory.getInstance();
+    private static final boolean continueOnErrors = true;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ValueFactory vf = SimpleValueFactory.getInstance();
 
-    private static String inputFile = "data/profiles.tar.gz";
-    private static String outputFile = "output/profiles_" + System.currentTimeMillis() + ".ttl.gz";
-    private static String errorsFile = "errors/errors_" + System.currentTimeMillis() + ".txt";
+    private static final String inputFile = "data/profiles1.tar.gz";
+    private static final String outputFile = "output/profiles_" + System.currentTimeMillis() + ".ttl.gz";
+    private static final String errorsFile = "errors/errors_" + System.currentTimeMillis() + ".txt";
 
     public static void main(String[] args) throws Exception {
 
@@ -54,15 +56,18 @@ public class Main {
         rdfWriter.handleNamespace(WGS84.PREFIX, WGS84.NAMESPACE);
         rdfWriter.handleNamespace(Semplify.Prefix, Semplify.Namespace);
 
+        var startTime = Instant.now();
         int docCount = 0;
         String line;
         try {
+            int maxDocCount = Integer.MAX_VALUE;
             while ((line = bufferedReader.readLine()) != null && docCount < maxDocCount) {
                 if (line.equals("\t\"_id\": {")) {
                     var doc = docStringBuilder.substring(0, docStringBuilder.lastIndexOf("{"));
                     if (!"".equals(doc.trim())) {
 
-                        writeRDF(doc, rdfWriter, errorOutputWriter); // replace your own function here
+
+                        //writeRDF(doc, rdfWriter, errorOutputWriter); // replace your own function here
 
                         docCount++;
                         if (docCount % 1000 == 0) {
@@ -72,7 +77,7 @@ public class Main {
                     docStringBuilder = new StringBuilder();
                     docStringBuilder.append("{\n");
                 }
-                docStringBuilder.append(line + "\n");
+                docStringBuilder.append(line).append("\n");
             }
 
             if (docCount < maxDocCount)
@@ -83,17 +88,18 @@ public class Main {
             errorOutputWriter.close();
             bufferedReader.close();
             fileOutputStream.close();
+            var endTime = Instant.now();
+            var duration = Duration.between(startTime, endTime);
+            System.out.println("Elapsed: " + duration.getSeconds() + "s.");
         }
     }
 
     public static void process(String doc, OutputStream outputStream, BufferedWriter errorOutputWriter) throws Exception {
         try {
             var profile = objectMapper.readValue(doc, Profile.class);
-            // do stuff with profile here
+
         } catch (Exception e) {
             errorOutputWriter.append(doc);
-            errorOutputWriter.append("\n\n");
-            errorOutputWriter.append(e.getMessage());
             errorOutputWriter.append("\n\n");
             if (!continueOnErrors)
                 throw e;
