@@ -1,5 +1,6 @@
 package ai.beu.vocab;
 
+import ai.beu.models.fbapi.School;
 import lombok.var;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -15,11 +16,13 @@ public class DBO {
     public static final IRI Place;
     public static final IRI Album;
     public static final IRI Video;
+    public static final IRI School;
 
     public static final IRI album;
     public static final IRI hometown;
     public static final IRI video;
     public static final IRI picture;
+    public static final IRI position;
 
 
     static {
@@ -27,8 +30,9 @@ public class DBO {
         Place = valueFactory.createIRI(Namespace, "Place");
         Album = valueFactory.createIRI(Namespace, "Album");
         Video = valueFactory.createIRI(Namespace, "Video");
+        School = valueFactory.createIRI(Namespace, "School");
 
-
+        position = valueFactory.createIRI(Namespace, "position");
         hometown = valueFactory.createIRI(Namespace, "hometown");
         album = valueFactory.createIRI(Namespace, "album");
         video = valueFactory.createIRI(Namespace, "video");

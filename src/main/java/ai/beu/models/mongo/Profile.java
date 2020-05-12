@@ -1,4 +1,4 @@
-package ai.beu.models;
+package ai.beu.models.mongo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,7 +31,7 @@ public class Profile {
     @JsonProperty("updated_at")
     private Long updated_At;
 
-    private ai.beu.models.Data data;
+    private ai.beu.models.mongo.Data data;
 
     private String uid;
 

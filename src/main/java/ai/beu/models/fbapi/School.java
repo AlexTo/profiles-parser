@@ -1,13 +1,11 @@
-package ai.beu.models;
+package ai.beu.models.fbapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Place {
-    private String name;
-    private String url;
+public class School {
     private String id;
-    private Location location;
+    private String name;
 }

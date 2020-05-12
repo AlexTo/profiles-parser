@@ -1,7 +1,6 @@
 package ai.beu;
 
-import ai.beu.models.Node;
-import ai.beu.models.Profile;
+import ai.beu.models.mongo.Profile;
 import ai.beu.vocab.DBO;
 import ai.beu.vocab.Facebook;
 import ai.beu.vocab.Semplify;
@@ -20,16 +19,17 @@ import org.eclipse.rdf4j.rio.Rio;
 import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class Main {
+import static ai.beu.Utils.*;
+
+public class MongoDumpParser {
 
     private static final boolean continueOnErrors = true;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ValueFactory vf = SimpleValueFactory.getInstance();
-
+    private static final int maxDocCount = Integer.MAX_VALUE;
     private static final String inputFile = "data/profiles1.tar.gz";
     private static final String outputFile = "output/profiles_" + System.currentTimeMillis() + ".ttl.gz";
     private static final String errorsFile = "errors/errors_" + System.currentTimeMillis() + ".txt";
@@ -60,12 +60,11 @@ public class Main {
         int docCount = 0;
         String line;
         try {
-            int maxDocCount = Integer.MAX_VALUE;
+
             while ((line = bufferedReader.readLine()) != null && docCount < maxDocCount) {
                 if (line.equals("\t\"_id\": {")) {
                     var doc = docStringBuilder.substring(0, docStringBuilder.lastIndexOf("{"));
                     if (!"".equals(doc.trim())) {
-
 
                         //writeRDF(doc, rdfWriter, errorOutputWriter); // replace your own function here
 
@@ -206,75 +205,10 @@ public class Main {
         } catch (Exception e) {
             errorOutputWriter.append(doc);
             errorOutputWriter.append("\n\n");
-            errorOutputWriter.append(e.getMessage());
-            errorOutputWriter.append("\n\n");
             if (!continueOnErrors)
                 throw e;
         }
     }
 
-    private static IRI node(Model model, Node node, String type) {
-        var nodeIri = iri(Facebook.Namespace, node.getId());
-        if ("group".equals(type)) {
-            model.add(nodeIri, RDF.TYPE, FOAF.GROUP);
-        } else if ("album".equals(type)) {
-            model.add(nodeIri, RDF.TYPE, DBO.Album);
-        } else if ("friend".equals(type)) {
-            model.add(nodeIri, FOAF.DEPICTION,
-                    vf.createIRI(String.format("https://graph.facebook.com/%s/picture", node.getId())));
-            model.add(nodeIri, RDF.TYPE, FOAF.PERSON);
-        } else if ("video".equals(type)) {
-            model.add(nodeIri, RDF.TYPE, DBO.Video);
-        }
-        pred(model, nodeIri, FOAF.ACCOUNT_NAME, node.getId());
-        pred(model, nodeIri, FOAF.HOMEPAGE, node.getUrl(), "iri");
-        pred(model, nodeIri, FOAF.NAME, node.getName());
-        if (node.getTitle() != null) {
-            pred(model, nodeIri, FOAF.TITLE, node.getTitle().getText());
-        }
-        if (node.getMessage() != null) {
-            pred(model, nodeIri, FOAF.TITLE, node.getMessage().getText());
-        }
-        if (node.getImage() != null) {
-            pred(model, nodeIri, FOAF.DEPICTION, node.getImage().getUrl());
-        }
 
-        return nodeIri;
-    }
-
-    private static void pred(Model model, Resource resource, IRI pred, String value) {
-        pred(model, resource, pred, value, "literal");
-    }
-
-    private static void pred(Model model, Resource resource, IRI pred, String value, String objType) {
-        if (value == null || "".equals(value))
-            return;
-        if ("literal".equals(objType))
-            model.add(resource, pred, literal(value));
-        else if ("iri".equals(objType))
-            model.add(resource, pred, iri(value));
-
-    }
-
-    private static void pred(Model model, Resource resource, IRI pred, Float value) {
-        if (value == null)
-            return;
-        model.add(resource, pred, literal(value));
-    }
-
-    private static IRI iri(String value) {
-        return vf.createIRI(value);
-    }
-
-    private static IRI iri(String namespace, String value) {
-        return vf.createIRI(namespace, value);
-    }
-
-    private static Literal literal(String value) {
-        return vf.createLiteral(value);
-    }
-
-    private static Literal literal(Float value) {
-        return vf.createLiteral(value);
-    }
 }

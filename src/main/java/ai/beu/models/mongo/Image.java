@@ -1,4 +1,4 @@
-package ai.beu.models;
+package ai.beu.models.mongo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

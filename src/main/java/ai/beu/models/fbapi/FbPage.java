@@ -1,17 +1,19 @@
-package ai.beu.models;
+package ai.beu.models.fbapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Data;
 
-@lombok.Data
+import java.util.List;
+
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class Address {
-    private String addressee;
-    private String street;
-    private String building;
-    private String city;
-    private String country;
-    private String postalCode;
+public class FbPage {
+    private String id;
+    private String name;
+
+    private List<FbPageCategory> categoryList;
+
 }

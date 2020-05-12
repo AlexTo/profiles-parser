@@ -1,10 +1,11 @@
-package ai.beu.models;
+package ai.beu.models.fbapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@lombok.Data
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Location {
-    private Float latitude;
-    private Float longitude;
+    private String id;
+    private String name;
 }
