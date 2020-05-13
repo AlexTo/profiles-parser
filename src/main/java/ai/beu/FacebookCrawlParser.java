@@ -37,11 +37,11 @@ public class FacebookCrawlParser {
     private static final int maxDocCount = Integer.MAX_VALUE;
     private static final String outputFile = "output/profiles_" + System.currentTimeMillis() + ".ttl.gz";
     private static final String errorsFile = "errors/errors_" + System.currentTimeMillis() + ".txt";
-    private static final String fbPageCategoriesFile = "data/fb_page_categories.json";
     private static final ConcurrentHashMap<String, FbPageCategory> fbCategoriesFlatten = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws Exception {
         var inputFile = args[0];
+        var fbPageCategoriesFile = args[1];
         var inputFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
         var fileOutputStream = new GZIPOutputStream(new FileOutputStream(outputFile), 65536);
         var errorOutputWriter = new BufferedWriter(new FileWriter(errorsFile));
@@ -57,7 +57,7 @@ public class FacebookCrawlParser {
         rdfWriter.handleNamespace(WGS84.PREFIX, WGS84.NAMESPACE);
         rdfWriter.handleNamespace(Semplify.Prefix, Semplify.Namespace);
 
-        var fbCategories = loadFbPageCategories();
+        var fbCategories = loadFbPageCategories(fbPageCategoriesFile);
         flattenFbCategories(fbCategoriesFlatten, fbCategories.getData());
 
         for (var fbCat : fbCategoriesFlatten.values()) {
@@ -234,21 +234,19 @@ public class FacebookCrawlParser {
         }
     }
 
-    private static FbPageCategories loadFbPageCategories() throws IOException {
-        var fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(fbPageCategoriesFile)));
-        String line;
-        var doc = new StringBuilder();
-        try {
+    private static FbPageCategories loadFbPageCategories(String fbPageCategoriesFile) throws IOException {
+
+        try (var fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(fbPageCategoriesFile)))) {
+            String line;
+            var doc = new StringBuilder();
             while ((line = fileReader.readLine()) != null) {
                 doc.append(line);
             }
             return objectMapper.readValue(doc.toString(), FbPageCategories.class);
-        } finally {
-            fileReader.close();
         }
     }
 
-    private static void flattenFbCategories(ConcurrentHashMap map, List<FbPageCategory> fbPageCategories) {
+    private static void flattenFbCategories(ConcurrentHashMap<String, FbPageCategory> map, List<FbPageCategory> fbPageCategories) {
         if (fbPageCategories == null)
             return;
 
